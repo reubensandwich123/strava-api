@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from flask import Flask, request, render_template, redirect
 import requests
 from requests.exceptions import ConnectionError, HTTPError
