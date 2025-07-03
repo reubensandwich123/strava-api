@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <title>index</title>
+    <link href="../static/styles.css" rel="stylesheet">
 </head>
 <body>
-    <div>
-        <h1>Testing 123</h1>
+    <div class="container">
+        <h1>Strava-api test by Reuben</h1>
         <h2>{{ greeting }}</h2>
     </div>
     <br>
-    <div>
-        <form action="/get_data" method="post">
-            <input type="text" name="id" required autofocus autocomplete="off">
-            <button type="submit">Submit</button>
+    <div class="container">
+        <form action="/authorization" method="post" id="connectBtn">
+            <button type="submit">Connect to Strava</button>
         </form>
     </div>
 </body>
