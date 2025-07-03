@@ -16,7 +16,7 @@ def index():
 
 @app.route("/authorization")
 def authorization():
-    return redirect("http://www.strava.com/oauth/authorize?client_id=[166896]&response_type=code&redirect_uri=https://strava-api-06ge.onrender.com/strava_callback&approval_prompt=force&scope=read")
+    return redirect("https://www.strava.com/oauth/authorize?client_id=166896&response_type=code&redirect_uri=https://strava-api-06ge.onrender.com/strava_callback&approval_prompt=force&scope=read")
 
 @app.route("/strava_callback")
 def strava_callback():
@@ -30,7 +30,7 @@ def strava_callback():
                 'code': code,
                 'grant_type': 'authorization_code'
                 
-    })
+    }, headers={'Accept': 'application/json'})
         token.raise_for_status()
     except ConnectionError as conErr:
         return render_template('failure.html', message=conErr)
