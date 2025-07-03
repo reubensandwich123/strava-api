@@ -10,6 +10,12 @@
     <div class="container">
         <h1>Hello {{ athlete_username }}</h1>
         <h2>Your athlete id is {{ athlete_id }}</h2>
+        
+    </div>
+    <div class="container">
+        <form action="/stats" method="post">
+            <button>Get your stats</button>
+        </form>
     </div>
 </body>
 </html>

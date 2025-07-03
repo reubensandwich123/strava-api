@@ -7,6 +7,19 @@ from requests.exceptions import ConnectionError, HTTPError
 
 app = Flask(__name__)
 
+db = sqlite3.connect("database.db")
+
+db.execute("""CREATE TABLE info (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                athlete_id INTEGER NOT NULL,
+                username REAL NOT NULL
+                 access_token TEXT NOT NULL,
+                 refresh_token TEXT NOT NULL,
+                expires_in INTEGER NOT NULL,
+                expires_at INTEGER NOT NULL
+        )""")
+
+
 CLIENT_ID = 166896
 CLIENT_SECRET = '0a73b7f372be641908e23d6b72dc76f9cbd5430f'
 REDIRECT_URI = 'https://strava-api-06ge.onrender.com/strava_callback'
@@ -46,6 +59,11 @@ def strava_callback():
         return render_template("failure.html", message="failed to get access token")
     athlete_username = token_decoded["athlete"]["username"]
     athlete_id = token_decoded["athlete"]["id"]
+    refresh_token = token_decoded["refresh_token"]
+    db.execute("INSERT INTO info (access_token, athlete_id, username, refresh_token) VALUES (?, ?, ?, ?)", 
+               access_token, athlete_id, athlete_username, refresh_token)
     return render_template("information.html", athlete_username=athlete_username, athlete_id=athlete_id)
 
-def get_refresh_token()
+@app.route("/stats", methods=["POST"])
+def stats():
+    response = requests.get(f"https://www.strava.com/api/v3/athletes/{athlete_id}/stats" "Authorization: Bearer [[token]]")
