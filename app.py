@@ -1,18 +1,21 @@
 import os
 import time
 import sqlite3
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, session
 import requests
 from requests.exceptions import ConnectionError, HTTPError
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 db = sqlite3.connect("database.db")
 
 db.execute("""CREATE TABLE info (
                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                 athlete_id INTEGER NOT NULL,
-                username REAL NOT NULL
+                username TEXT NOT NULL,
                  access_token TEXT NOT NULL,
                  refresh_token TEXT NOT NULL,
                 expires_in INTEGER NOT NULL,
@@ -60,10 +63,18 @@ def strava_callback():
     athlete_username = token_decoded["athlete"]["username"]
     athlete_id = token_decoded["athlete"]["id"]
     refresh_token = token_decoded["refresh_token"]
-    db.execute("INSERT INTO info (access_token, athlete_id, username, refresh_token) VALUES (?, ?, ?, ?)", 
-               access_token, athlete_id, athlete_username, refresh_token)
+    expires_in = token_decoded["expires_in"]
+    expires_at = token_decoded["expires_at"]
+    session["user_id"] = athlete_id
+    db.execute("INSERT INTO info (access_token, athlete_id, username, refresh_token, expires_in, expires_at) VALUES (?, ?, ?, ?, ?, ?)", 
+               (access_token, athlete_id, athlete_username, refresh_token, expires_in, expires_at))
     return render_template("information.html", athlete_username=athlete_username, athlete_id=athlete_id)
 
 @app.route("/stats", methods=["POST"])
 def stats():
-    response = requests.get(f"https://www.strava.com/api/v3/athletes/{athlete_id}/stats" "Authorization: Bearer [[token]]")
+    athlete_id = session.get("user_id")
+    access_token = db.execute("SELECT access_token FROM info WHERE athlete_id = ?", athlete_id)
+    response = requests.get(f"https://www.strava.com/api/v3/athletes/{athlete_id}/stats", headers={"Authorization": "Bearer" + access_token})
+    response = response.json()
+    total_runs = response["recent_run_totals"]
+    render_template("stats.html", total_runs=total_runs)
