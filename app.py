@@ -54,7 +54,10 @@ def strava_callback():
         return render_template('failure.html', message=conErr)
     except HTTPError as httpErr:
         error_code = token.status_code
+        print(token.text)  # 🔍 Add this to see the real error from Strava
         return render_template("failure.html", message=f"{httpErr} with error code {error_code}")
+  
+
 
     token_decoded = token.json()
     access_token = token_decoded["access_token"]
