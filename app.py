@@ -14,7 +14,7 @@ REDIRECT_URI = 'https://strava-api-06ge.onrender.com/strava_callback'
 def index():
     return render_template("index.html", greeting="Hello and welcome!")
 
-@app.route("/authorization", methods="POST")
+@app.route("/authorization", methods=["POST"])
 def authorization():
     return redirect("https://www.strava.com/oauth/authorize?client_id=166896&response_type=code&redirect_uri=https://strava-api-06ge.onrender.com/strava_callback&approval_prompt=force&scope=read")
 
