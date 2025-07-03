@@ -1,6 +1,4 @@
 Flask
-ConnectionError
-HTTPError
 request
 requests
 render_template
