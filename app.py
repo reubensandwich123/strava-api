@@ -1,0 +1,8 @@
+from flask import Flask, request, render_template
+import requests
+from requests.exceptions import ConnectionError, HTTPError
+
+
+@app.route("/")
+def index():
+    return render_template("index.html", greeting="Hello and welcome!")
