@@ -1,4 +1,5 @@
 import os
+import time
 import sqlite3
 from flask import Flask, request, render_template, redirect
 import requests
@@ -46,3 +47,5 @@ def strava_callback():
     athlete_username = token_decoded["athlete"]["username"]
     athlete_id = token_decoded["athlete"]["id"]
     return render_template("information.html", athlete_username=athlete_username, athlete_id=athlete_id)
+
+def get_refresh_token()
