@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, render_template, redirect, session
+from flask_session import Session
 import requests
 from requests.exceptions import ConnectionError, HTTPError
 
@@ -8,7 +9,7 @@ app = Flask(__name__)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-session(app)
+Session(app)
 CLIENT_ID = 166896
 CLIENT_SECRET = '0a73b7f372be641908e23d6b72dc76f9cbd5430f'
 REDIRECT_URI = 'https://strava-api-06ge.onrender.com/strava_callback'
