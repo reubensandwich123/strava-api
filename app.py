@@ -68,7 +68,7 @@ def stats():
             response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", headers={"Authorization": f"Bearer {token}"})
             response.raise_for_status()
         except ConnectionError as connErr:
-            return render_template("failure.html", message=str(connErr)
+            return render_template("failure.html", message=str(connErr))
         except HTTPError as httpErr:
             status = response.status_code
             return render_template('failure.html', message=f"{httpErr} with error code {status}")
