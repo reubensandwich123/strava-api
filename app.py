@@ -46,7 +46,7 @@ def strava_callback():
 
     token_decoded = token.json()
     session["access_token"] = token_decoded["access_token"]
-    if not access_token:
+    if not token_decoded["access_token"]:
         return render_template("failure.html", message="failed to get access token")
     session["athlete_username"] = token_decoded["athlete"]["username"]
     session["athlete_id"] = token_decoded["athlete"]["id"]
