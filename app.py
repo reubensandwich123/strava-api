@@ -58,7 +58,7 @@ def stats():
     id = session["athlete_id"]
     token = session["access_token"]
     try:
-        response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", headers={f"Authorization: Bearer {token}"})
+        response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", headers={f"Authorization": "Bearer {token}"})
         response.raise_for_status()
     except ConnectionError as connErr:
         return render_template("failure.html", message=connErr)
