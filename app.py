@@ -30,10 +30,11 @@ def strava_callback():
         return render_template("failure.html", message="could not obtain code")
     try:
         token = requests.post("https://www.strava.com/oauth/token", data={
-                        'client_id': 166896,
-                'client_secret': '0a73b7f372be641908e23d6b72dc76f9cbd5430f',
+                        'client_id': CLIENT_ID,
+                'client_secret': CLIENT_SECRET,
                 'code': code,
-                'grant_type': 'authorization_code'
+                'grant_type': 'authorization_code', 
+                'redirect_uri' : REDIRECT_URI
                 
     }, headers={'Accept': 'application/json'})
         token.raise_for_status()
@@ -57,7 +58,7 @@ def stats():
     id = session["athlete_id"]
     token = session["access_token"]
     try:
-        response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", f"Authorization: Bearer {token}")
+        response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", headers={f"Authorization: Bearer {token}"})
         response.raise_for_status()
     except ConnectionError as connErr:
         return render_template("failure.html", message=connErr)
