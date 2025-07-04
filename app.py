@@ -1,28 +1,14 @@
 import os
-import time
-import sqlite3
 from flask import Flask, request, render_template, redirect, session
 import requests
 from requests.exceptions import ConnectionError, HTTPError
 
 app = Flask(__name__)
+
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
-
-db = sqlite3.connect("database.db")
-
-db.execute("""CREATE TABLE info (
-                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                athlete_id INTEGER NOT NULL,
-                username TEXT NOT NULL,
-                 access_token TEXT NOT NULL,
-                 refresh_token TEXT NOT NULL,
-                expires_in INTEGER NOT NULL,
-                expires_at INTEGER NOT NULL
-        )""")
-
-
+session(app)
 CLIENT_ID = 166896
 CLIENT_SECRET = '0a73b7f372be641908e23d6b72dc76f9cbd5430f'
 REDIRECT_URI = 'https://strava-api-06ge.onrender.com/strava_callback'
@@ -54,30 +40,31 @@ def strava_callback():
         return render_template('failure.html', message=conErr)
     except HTTPError as httpErr:
         error_code = token.status_code
-        print(token.text)  # 🔍 Add this to see the real error from Strava
         return render_template("failure.html", message=f"{httpErr} with error code {error_code}")
-  
-
 
     token_decoded = token.json()
-    access_token = token_decoded["access_token"]
+    session["access_token"] = token_decoded["access_token"]
     if not access_token:
         return render_template("failure.html", message="failed to get access token")
-    athlete_username = token_decoded["athlete"]["username"]
-    athlete_id = token_decoded["athlete"]["id"]
-    refresh_token = token_decoded["refresh_token"]
-    expires_in = token_decoded["expires_in"]
-    expires_at = token_decoded["expires_at"]
-    session["user_id"] = athlete_id
-    db.execute("INSERT INTO info (access_token, athlete_id, username, refresh_token, expires_in, expires_at) VALUES (?, ?, ?, ?, ?, ?)", 
-               (access_token, athlete_id, athlete_username, refresh_token, expires_in, expires_at))
-    return render_template("information.html", athlete_username=athlete_username, athlete_id=athlete_id)
+    session["athlete_username"] = token_decoded["athlete"]["username"]
+    session["athlete_id"] = token_decoded["athlete"]["id"]
+    return render_template("information.html", athlete_username=session["athlete_username"], athlete_id=session["athlete_id"])
+
 
 @app.route("/stats", methods=["POST"])
 def stats():
-    athlete_id = session.get("user_id")
-    access_token = db.execute("SELECT access_token FROM info WHERE athlete_id = ?", athlete_id)
-    response = requests.get(f"https://www.strava.com/api/v3/athletes/{athlete_id}/stats", headers={"Authorization": "Bearer" + access_token})
+    id = session["athlete_id"]
+    token = session["access_token"]
+    try:
+        response = requests.get(f"https://www.strava.com/api/v3/athletes/{id}/stats", f"Authorization: Bearer {token}")
+        response.raise_for_status()
+    except ConnectionError as connErr:
+        return render_template("failure.html", message=connErr)
+    except HTTPError as httpErr:
+        status = response.status_code
+        return render_template('failure.html', message=f"{httpErr} with error code {status}")
     response = response.json()
-    total_runs = response["recent_run_totals"]
-    render_template("stats.html", total_runs=total_runs)
+    run_totals = response["all_run_totals"]
+    ride_totals = response["all_ride_totals"]
+    swim_totals = response["all_swim_totals"]
+    return render_template('stats.html', run_total=run_totals, ride_total=ride_totals, swim_total=swim_totals)
